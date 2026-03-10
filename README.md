@@ -29,20 +29,28 @@
 make chip8_emu
 ./chip8_emu /путь/к/вашему/рому
 ```
-EN
-An interactive TUI debugger for the Chip8 virtual machine, built with C and ncurses.
-Key Bindings:
-UP/DOWN: Navigate through the code.
-A / D: Adjust breakpoint level on the current line.
-Z / X: Adjust the global "stop threshold".
-G: Run / Pause execution.
-Space: Execute a single step.
-S: Jump to the start point.
-P: Set current line as the new start point.
-C: Edit hex code at cursor.
-E: Edit register values.
-U / R: Undo / Redo support.
-Q: Quit.
+### RU / [EN](#en)
+
+This is an interactive debugger for the Chip8 virtual machine, written in C using ncurses.
+
+**Features:**
+* Three modes: running, step-by-step, and editing.
+* Three windows: program listing, register values, and the VM screen.
+* Breakpoint level system.
+
+**Controls:**
+- UP/DOWN: Navigate through code.
+- A / D: Change the breakpoint level on a line.
+- Z / X: Change the global breakpoint threshold.
+- G: Run / Pause.
+- Space: Step one step.
+- S: Go to the starting point.
+- `P`: Set the current line as the starting point.
+- `C`: Edit bytecode at the cursor.
+- `E`: Change a register value.
+- `U` / `R`: Undo / Redo.
+- `Q`: Exit.
+- Chip8 keys are transmitted directly to the virtual machine.
 ```bash
 make chip8_emu
 ./chip8_emu /путь/к/вашему/рому

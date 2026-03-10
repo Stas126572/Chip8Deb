@@ -1,6 +1,6 @@
 # Chip8 Debugger (TUI)
 
-### RU / [EN](#en)
+### [RU](#ru)
 
 Это интерактивный отладчик для виртуальной машины Chip8, написанный на C с использованием ncurses.
 
@@ -29,7 +29,7 @@
 make chip8_emu
 ./chip8_emu /путь/к/вашему/рому
 ```
-### RU / [EN](#en)
+### [EN](#en)
 
 This is an interactive debugger for the Chip8 virtual machine, written in C using ncurses.
 

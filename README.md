@@ -1,4 +1,3 @@
-(😊 -stat0) stas@stas-W9x0LU:~/project_version2_Simple/Disasm>cat README.md
 # Chip8 Debugger (TUI)
 
 ### RU / [EN](#en)

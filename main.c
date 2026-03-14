@@ -185,7 +185,11 @@ int main(int argc, char **argv) {
   }
 
   mkdir("./history_data", 0777);
-  int fd_h = open(strcat("./history_data/history_", argv[1]), O_RDWR | O_CREAT, 0666);
+  //int fd_h = open(strcat("./history_data/history_", argv[1]), O_RDWR | O_CREAT, 0666);
+  char path[256];
+snprintf(path, sizeof(path), "./history_data/history_%s", argv[1]);
+int fd_h = open(path, O_RDWR | O_CREAT, 0666);
+
   if (fd_h == -1) {
     perror("Open: ");
     return -1;

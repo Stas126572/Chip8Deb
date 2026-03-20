@@ -37,7 +37,7 @@ uint16_t changed_times = 0;
 #define GET_BP_LEVEL(a) (bp_bitmap[(a)] & 0x0F)
 #define SET_BP_LEVEL(a, level) (bp_bitmap[(a)] = ((uint8_t)level))
 #define SET_STOP_BP_LEVEL(level) (chip8.flags = ((uint8_t)(level)))
-#define GET_STOP_BP_LEVEL (chip8.flags)
+#define GET_STOP_BP_LEVEL (chip8.flags & 0x0F)
 
 int step() {
   uint16_t opcode = (RAM[chip8.PC] << 8) | RAM[chip8.PC + 1];
@@ -143,7 +143,7 @@ void draw_reg(WINDOW *reg) {
   mvwprintw(reg, 0, 2, " REGS ");
   for (int i = 0; i < 16; i++)
     mvwprintw(reg, i + 1, 2, "V%X: %02X", i, chip8.regs[i]);
-  mvwprintw(reg, 18, 2, "BP: %02X", chip8.flags);
+  mvwprintw(reg, 18, 2, "BP: %02X", chip8.flags & 0x0F);
   mvwprintw(reg, 20, 2, "PC: %04X", chip8.PC);
   mvwprintw(reg, 21, 2, "II: %04X", chip8.I);
   mvwprintw(reg, 22, 2, "SP: %04X", chip8.SP);
@@ -153,13 +153,52 @@ void draw_reg(WINDOW *reg) {
 }
 void draw_scr(WINDOW *scr) {
   box(scr, 0, 0);
+  mvwprintw(scr, 0, 2, " SCREEN");
   for (int y = 0; y < 32; y++)
     for (int x = 0; x < 64; x++)
       if (screen_rows[y] & (1ULL << (63 - x)))
-        mvwaddch(scr, y + 1, x + 1, '*');
+        mvwaddch(scr, y + 2, x + 1, '*');
   wrefresh(scr);
 }
 
+void draw_help(WINDOW * help) {
+        box(help, 0, 0);
+          mvwprintw(help, 0, 2, " HELP ");
+          mvwprintw(help, 1, 2, "KEYS DEFINITION:"); 
+           mvwprintw(help, 2, 2,"UP/DOWN: Navigate through the code. ");
+        mvwprintw(help, 3, 2, "A / D: Adjust breakpoint level on the current line.");
+        mvwprintw(help, 4, 2, "Z / X: Adjust the global \"stop threshold\".");
+        mvwprintw(help, 5, 2, "G: Run / Pause execution.");
+        mvwprintw(help, 6, 2, "Space: Execute a single step.");
+        mvwprintw(help, 7, 2, "S: Jump to the start point.");
+        mvwprintw(help, 8, 2, "P: Set current line as the new start point."); 
+        mvwprintw(help, 9, 2, "C: Edit hex code at cursor.");
+        mvwprintw(help, 10, 2, "E: Edit register values.");
+        mvwprintw(help, 11, 2, "U / R: Undo / Redo support.");
+        mvwprintw(help, 12, 2, "Q: Quit.");
+        mvwprintw(help, 14, 2, "REGISTERS DEFINITION:");
+        mvwprintw(help, 15, 2, "V0-VF - Value of registers 0-F(15)");
+        mvwprintw(help, 16, 2, "BP - Break Point minimum level to stop"); 
+        mvwprintw(help, 17, 2, "PC - Programm Counter");
+        mvwprintw(help, 18, 2, "II - Index of stack");
+        mvwprintw(help, 19, 2, "SP - Stack Pointer");
+        mvwprintw(help, 20, 2, "sp - Start Point addres");
+        mvwprintw(help, 21, 2, "HS - History Steps undo count");
+        mvwprintw(help, 23, 2, "Reade README.md and LICENSE.md for more information");
+        wrefresh(help);
+}
+
+void draw_autor(WINDOW* autor) {
+box(autor, 0, 0);
+        mvwprintw(autor, 1, 2, "Maked by Manichev Stanislav");
+        mvwprintw(autor, 2, 2, "Email 1: manichev_ss@mail.ru");
+        mvwprintw(autor, 3, 2, "Email 2: ss_manichev@gmail.com");
+        mvwprintw(autor, 4, 2, "Github: https://github.com/Stas126572");
+        mvwprintw(autor, 5, 2, "LICENSE: GPLv3 (General Public License version 3)");
+
+
+wrefresh(autor);
+}
 int main(int argc, char **argv) {
   if (argc < 2)
     return 1;
@@ -185,7 +224,6 @@ int main(int argc, char **argv) {
   }
 
   mkdir("./history_data", 0777);
-  //int fd_h = open(strcat("./history_data/history_", argv[1]), O_RDWR | O_CREAT, 0666);
   char path[256];
 snprintf(path, sizeof(path), "./history_data/history_%s", argv[1]);
 int fd_h = open(path, O_RDWR | O_CREAT, 0666);
@@ -219,21 +257,20 @@ int fd_h = open(path, O_RDWR | O_CREAT, 0666);
   init_pair(1, COLOR_CYAN, COLOR_BLACK);
   init_pair(2, COLOR_YELLOW, COLOR_BLACK);
   init_pair(3, COLOR_WHITE, COLOR_BLACK);
-
-  int my, mx;
-  getmaxyx(stdscr, my, mx);
-  WINDOW *wd = newwin(34, 25, 0, 0);
-  WINDOW *wr = newwin(34, 20, 0, 26);
+  WINDOW *wd = newwin(35, 25, 0, 0);
+  WINDOW *wr = newwin(35, 20, 0, 25);
   struct timeval last_timer_update, current_time;
   gettimeofday(&last_timer_update, NULL);
   chip8.del_time = 60;
   long long accumulator = 0;
-  WINDOW *ws = newwin(34, 66, 0, 47);
-
+  WINDOW *ws = newwin(35, 66, 0, 45);
+  WINDOW *wh = newwin(25, 54, 0, 113);
+  WINDOW *wa = newwin(7, 52, 29, 113);
   uint16_t cur = 0x200;
   chip8.startPoint = 0x200;
   chip8.PC = chip8.startPoint;
   int run = 0;
+
 
   int ch;
   while ((ch = getch()) != 'Q') {
@@ -432,6 +469,8 @@ int fd_h = open(path, O_RDWR | O_CREAT, 0666);
     draw_dis(wd, cur);
     draw_reg(wr);
     draw_scr(ws);
+   draw_help(wh);
+   draw_autor(wa);
   }
 
   delwin(wd);
